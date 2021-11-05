@@ -1,5 +1,5 @@
 {
-  "name": "org.pcsoft.unity.asset-loader",
+  "name": "org.pcsoft.asset-loader",
   "version": "1.0.0",
   "displayName": "Asset Loader",
   "description": "Extension to give an easy way to load assets from different sources",
