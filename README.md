@@ -4,6 +4,11 @@ Unity extension to give an easy way to import assets from different sources.
 # install
 Add this repository directly into Unity.
 
+### Open UPM
+URL: https://package.openupm.com
+
+Scope: org.pcsoft
+
 # usage
 
 ### Types of Loader
