@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Loader
+namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime.Loader
 {
     public sealed class AssetBundleLoader : AssetBaseLoader
     {

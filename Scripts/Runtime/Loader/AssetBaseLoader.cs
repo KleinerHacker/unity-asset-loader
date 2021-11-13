@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Object = UnityEngine.Object;
 
-namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Loader
+namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime.Loader
 {
     public abstract class AssetBaseLoader
     {

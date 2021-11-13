@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Loader
+namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime.Loader
 {
     public sealed class AssetEditorLoader : AssetBaseLoader
     {
