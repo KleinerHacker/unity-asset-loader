@@ -12,31 +12,28 @@ Scope: org.pcsoft
 # usage
 
 ### Types of Loader
-There are three loaders:
-* **Resource Loader** `AssetResourcesLoader` - Load assets from "Resources" folder(s).
-* **Bundle Loader** `AssetBundleLoader` - Load assets from an asset bundle file.
-* **Editor Loader** `AssetEditorLoader` - Load assets in Editor mode via Asset Database.
+
+* Use the class `AssetResourcesLoader` to load assets from a source. For support in editor play there are
+multiple methods to load assets in editor only.
+* Use class `AassetResources` to get the loaded assets from memory.
 
 First the asset you want to use must load initial:
 ```c#
 //Load all assets of given type from given path
-AssetResourcesLoader.Instance.LoadAssets<AssetType>(AssetPath);
+AssetResourcesLoader.LoadFromResources<AssetType>(AssetPath);
 
 //Load all assets of given type from asset bundles found in given path
-AssetBundleLoader.Instance.LoadAssets<AssetType>(BundlePath);
+AssetResourcesLoader.LoadFromBundle<AssetType>(BundlePath);
 
 //Load all assets of given type from asset database in given path, use it only in Editor script parts!
-AssetEditorLoader.Instance.LoadAssets<AssetType>(ProjectPath);
+AssetResourcesLoader.LoadFromAssetDatbase<AssetType>(ProjectPath);
+
+//Load all assets of given type from asset database bundle declaration by name; only for Editor
+AssetResourcesLoader.LoadFromBundleDeclaration<AssetType>(BundleName);
 ```
 
 Second you can access cached asset(s) via loader:
 ```c#
-AssetResourcesLoader.Instance.GetAsset<AssetType>();
-AssetResourcesLoader.Instance.GetAssets<AssetType>();
-
-AssetBundleLoader.Instance.GetAsset<AssetType>();
-AssetBundleLoader.Instance.GetAssets<AssetType>();
-
-AssetEditorLoader.Instance.GetAsset<AssetType>();
-AssetEditorLoader.Instance.GetAssets<AssetType>();
+AssetResources.GetAsset<AssetType>();
+AssetResources.GetAssets<AssetType>();
 ```
