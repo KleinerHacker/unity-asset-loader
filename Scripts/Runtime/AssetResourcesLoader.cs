@@ -19,9 +19,13 @@ namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime
 
         public static void LoadFromResources<T>(string path) where T : Object => LoadFromResources(typeof(T), path);
         
-        public static void LoadFromResourcesAsync(Type type, string path) => Task.Run(() => LoadFromResources(type, path));
+        public static void LoadFromResourcesAsync(Type type, string path, Action onFinished) => Task.Run(() =>
+        {
+            LoadFromResources(type, path);
+            onFinished?.Invoke();
+        });
 
-        public static void LoadFromResourcesAsync<T>(string path) where T : Object => LoadFromResourcesAsync(typeof(T), path);
+        public static void LoadFromResourcesAsync<T>(string path, Action onFinished = null) where T : Object => LoadFromResourcesAsync(typeof(T), path, onFinished);
 
         public static void LoadFromResources(string path)
         {
@@ -29,9 +33,13 @@ namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime
             RegisterObjects(objects);
         }
         
-        public static void LoadFromResourcesAsync(string path) => Task.Run(() => LoadFromResources(path));
+        public static void LoadFromResourcesAsync(string path, Action onFinished = null) => Task.Run(() =>
+        {
+            LoadFromResources(path);
+            onFinished?.Invoke();
+        });
 
-        public static void LoadFromBundle(Type type, string path)
+        public static void LoadFromBundle(Type type, string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload)
         {
             var bundle = AssetBundle.LoadFromFile(path);
             try
@@ -41,45 +49,116 @@ namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime
             }
             finally
             {
-                AssetBundle.UnloadAllAssetBundles(false);
+                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                {
+                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                }
             }
         }
 
-        public static void LoadFromBundle<T>(string path) where T : Object => LoadFromBundle(typeof(T), path);
+        public static void LoadFromBundle<T>(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload) where T : Object => LoadFromBundle(typeof(T), path, unload);
         
-        public static void LoadFromBundleAsync(Type type, string path)
+        public static void LoadFromBundleAsync(Type type, string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += _ =>
             {
                 var assetRequest = bundleRequest.assetBundle.LoadAllAssetsAsync(type);
-                assetRequest.completed += _ => RegisterObjects(assetRequest.allAssets);
+                assetRequest.completed += _ =>
+                {
+                    try
+                    {
+                        RegisterObjects(assetRequest.allAssets);
+                        onFinished?.Invoke();
+                    }
+                    finally
+                    {
+                        if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                        {
+                            bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                        }
+                    }
+                };
             };
         }
 
-        public static void LoadFromBundleAsync<T>(string path) where T : Object => LoadFromBundleAsync(typeof(T), path);
+        public static void LoadFromBundleAsync<T>(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null) where T : Object => LoadFromBundleAsync(typeof(T), path, unload, onFinished);
 
-        public static void LoadFromBundle(string path)
+        public static void LoadFromBundle(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundle = AssetBundle.LoadFromFile(path);
             try
             {
                 var assets = bundle.LoadAllAssets();
                 RegisterObjects(assets);
+                onFinished?.Invoke();
             }
             finally
             {
-                AssetBundle.UnloadAllAssetBundles(false);
+                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                {
+                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                }
             }
         }
         
-        public static void LoadFromBundleAsync(string path)
+        public static void LoadFromBundleAsync(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += _ =>
             {
                 var assetRequest = bundleRequest.assetBundle.LoadAllAssetsAsync();
-                assetRequest.completed += _ => RegisterObjects(assetRequest.allAssets);
+                assetRequest.completed += _ =>
+                {
+                    try
+                    {
+                        RegisterObjects(assetRequest.allAssets);
+                        onFinished?.Invoke();
+                    }
+                    finally
+                    {
+                        if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                        {
+                            bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                        }
+                    }
+                };
+            };
+        }
+        
+        public static string[] LoadScenesFromBundle(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload)
+        {
+            var bundle = AssetBundle.LoadFromFile(path);
+            try
+            {
+                return bundle.GetAllScenePaths();
+            }
+            finally
+            {
+                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                {
+                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                }
+            }
+        }
+        
+        public static void LoadScenesFromBundleAsync(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload, Action<string[]> onFinished = null)
+        {
+            var bundleRequest = AssetBundle.LoadFromFileAsync(path);
+            bundleRequest.completed += _ =>
+            {
+                try
+                {
+                    var allScenePaths = bundleRequest.assetBundle.GetAllScenePaths();
+                    onFinished?.Invoke(allScenePaths);
+                }
+                finally
+                {
+                    if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
+                    {
+                        bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                    }
+                }
             };
         }
 
@@ -125,5 +204,12 @@ namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime
         {
             AssetResources.RegisterAssets(objects);
         }
+    }
+
+    public enum AssetResourcesLoaderBundleUnload
+    {
+        DoNotUnload,
+        Unload,
+        UnloadComplete
     }
 }
