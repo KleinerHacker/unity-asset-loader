@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="dev-guide"
+                 name="Developer Guide"
+                 start-page="overview.md">
+
+    <toc-element topic="overview.md">
+        <toc-element topic="database-asset-loader.md"/>
+        <toc-element topic="bundle-asset-loader.md"/>
+        <toc-element topic="resource-asset-loader.md"/>
+    </toc-element>
+</instance-profile>
