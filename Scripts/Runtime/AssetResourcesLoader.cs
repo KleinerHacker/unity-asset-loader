@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
-namespace UnityAssetLoader.Runtime.asset_loader.Scripts.Runtime
+namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
 {
     public static class AssetResourcesLoader
     {
