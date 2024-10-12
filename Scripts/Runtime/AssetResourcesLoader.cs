@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
 namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
@@ -16,28 +20,30 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
         }
 
         public static void LoadFromResources<T>(string path) where T : Object => LoadFromResources(typeof(T), path);
-        
+
         public static void LoadFromResourcesAsync(Type type, string path, Action onFinished) => Task.Run(() =>
         {
             LoadFromResources(type, path);
             onFinished?.Invoke();
         });
 
-        public static void LoadFromResourcesAsync<T>(string path, Action onFinished = null) where T : Object => LoadFromResourcesAsync(typeof(T), path, onFinished);
+        public static void LoadFromResourcesAsync<T>(string path, Action onFinished = null) where T : Object =>
+            LoadFromResourcesAsync(typeof(T), path, onFinished);
 
         public static void LoadFromResources(string path)
         {
             var objects = Resources.LoadAll(path);
             RegisterObjects(objects);
         }
-        
+
         public static void LoadFromResourcesAsync(string path, Action onFinished = null) => Task.Run(() =>
         {
             LoadFromResources(path);
             onFinished?.Invoke();
         });
 
-        public static void LoadFromBundle(Type type, string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload)
+        public static void LoadFromBundle(Type type, string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload)
         {
             var bundle = AssetBundle.LoadFromFile(path);
             try
@@ -54,9 +60,12 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
             }
         }
 
-        public static void LoadFromBundle<T>(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload) where T : Object => LoadFromBundle(typeof(T), path, unload);
-        
-        public static void LoadFromBundleAsync(Type type, string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
+        public static void LoadFromBundle<T>(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload) where T : Object =>
+            LoadFromBundle(typeof(T), path, unload);
+
+        public static void LoadFromBundleAsync(Type type, string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += _ =>
@@ -73,16 +82,20 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                     {
                         if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
                         {
-                            bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                            bundleRequest.assetBundle.UnloadAsync(unload ==
+                                                                  AssetResourcesLoaderBundleUnload.UnloadComplete);
                         }
                     }
                 };
             };
         }
 
-        public static void LoadFromBundleAsync<T>(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null) where T : Object => LoadFromBundleAsync(typeof(T), path, unload, onFinished);
+        public static void LoadFromBundleAsync<T>(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
+            where T : Object => LoadFromBundleAsync(typeof(T), path, unload, onFinished);
 
-        public static void LoadFromBundle(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
+        public static void LoadFromBundle(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundle = AssetBundle.LoadFromFile(path);
             try
@@ -99,8 +112,9 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                 }
             }
         }
-        
-        public static void LoadFromBundleAsync(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
+
+        public static void LoadFromBundleAsync(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
         {
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += _ =>
@@ -117,14 +131,16 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                     {
                         if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
                         {
-                            bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                            bundleRequest.assetBundle.UnloadAsync(unload ==
+                                                                  AssetResourcesLoaderBundleUnload.UnloadComplete);
                         }
                     }
                 };
             };
         }
-        
-        public static string[] LoadScenesFromBundle(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload)
+
+        public static string[] LoadScenesFromBundle(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload)
         {
             var bundle = AssetBundle.LoadFromFile(path);
             try
@@ -139,8 +155,10 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                 }
             }
         }
-        
-        public static void LoadScenesFromBundleAsync(string path, AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload, Action<string[]> onFinished = null)
+
+        public static void LoadScenesFromBundleAsync(string path,
+            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload,
+            Action<string[]> onFinished = null)
         {
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += _ =>
@@ -154,7 +172,8 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                 {
                     if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
                     {
-                        bundleRequest.assetBundle.UnloadAsync(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
+                        bundleRequest.assetBundle.UnloadAsync(unload ==
+                                                              AssetResourcesLoaderBundleUnload.UnloadComplete);
                     }
                 }
             };
@@ -169,7 +188,8 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
             RegisterObjects(assets);
         }
 
-        public static void LoadFromAssetDatabase<T>(string path) where T : Object => LoadFromAssetDatabase(typeof(T), path);
+        public static void LoadFromAssetDatabase<T>(string path) where T : Object =>
+            LoadFromAssetDatabase(typeof(T), path);
 
         public static void LoadFromAssetDatabase(string path)
         {
@@ -187,7 +207,8 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
             RegisterObjects(assets);
         }
 
-        public static void LoadFromBundleDeclaration<T>(string bundleName) where T : Object => LoadFromBundleDeclaration(typeof(T), bundleName);
+        public static void LoadFromBundleDeclaration<T>(string bundleName) where T : Object =>
+            LoadFromBundleDeclaration(typeof(T), bundleName);
 
         public static void LoadFromBundleDeclaration(string bundleName)
         {
@@ -196,6 +217,56 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                 .ToArray();
             RegisterObjects(assets);
         }
+#endif
+
+#if UNITY_ADDRESSABLE
+
+        public static IEnumerator LoadAssetFromAddressableAsync<T>(string key) where T : Object
+        {
+            var handle = Addressables.LoadAssetAsync<T>(key);
+            handle.Completed += HandleOnCompleted;
+
+            return handle;
+            
+            void HandleOnCompleted(AsyncOperationHandle<T> obj)
+            {
+                try
+                {
+                    if (obj.Status != AsyncOperationStatus.Succeeded)
+                        throw new InvalidOperationException("Failed to load asset from addressable asset: " + key);
+                
+                    RegisterObjects(new Object[]{obj.Result});
+                }
+                finally
+                {
+                    handle.Completed -= HandleOnCompleted;
+                }
+            }
+        }
+        
+        public static IEnumerator LoadAssetsFromAddressableAsync<T>(string key) where T : Object
+        {
+            var handle = Addressables.LoadAssetsAsync<T>(key);
+            handle.Completed += HandleOnCompleted;
+
+            return handle;
+            
+            void HandleOnCompleted(AsyncOperationHandle<IList<T>> obj)
+            {
+                try
+                {
+                    if (obj.Status != AsyncOperationStatus.Succeeded)
+                        throw new InvalidOperationException("Failed to load asset from addressable asset: " + key);
+                
+                    RegisterObjects(obj.Result.ToArray<Object>());
+                }
+                finally
+                {
+                    handle.Completed -= HandleOnCompleted;
+                }
+            }
+        }
+
 #endif
 
         private static void RegisterObjects(Object[] objects)
