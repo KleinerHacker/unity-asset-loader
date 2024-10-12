@@ -1,6 +1,6 @@
 {
   "name": "org.pcsoft.asset-loader",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "displayName": "Asset Loader",
   "description": "Extension to give an easy way to load assets from different sources",
   "unity": "2021.3",
