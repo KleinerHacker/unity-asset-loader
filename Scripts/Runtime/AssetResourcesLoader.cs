@@ -221,6 +221,12 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
 
 #if UNITY_ADDRESSABLE
 
+        public static void LoadAssetFromAddressable<T>(string key) where T : Object
+        {
+            var asset = Addressables.LoadAssetAsync<T>(key).WaitForCompletion();
+            RegisterObjects(new Object[] {asset});
+        }
+
         public static IEnumerator LoadAssetFromAddressableAsync<T>(string key) where T : Object
         {
             var handle = Addressables.LoadAssetAsync<T>(key);
@@ -242,6 +248,12 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
                     handle.Completed -= HandleOnCompleted;
                 }
             }
+        }
+        
+        public static void LoadAssetsFromAddressable<T>(string key) where T : Object
+        {
+            var assets = Addressables.LoadAssetsAsync<T>(key).WaitForCompletion();
+            RegisterObjects(assets.ToArray<Object>());
         }
         
         public static IEnumerator LoadAssetsFromAddressableAsync<T>(string key) where T : Object
