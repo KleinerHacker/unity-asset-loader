@@ -7,49 +7,89 @@ namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
 {
     public static class AssetResources
     {
-        private static readonly IDictionary<Type, IList<Object>> Resources = new Dictionary<Type, IList<Object>>();
+        private static readonly IDictionary<Type, IList<Object>> DefaultResources = new Dictionary<Type, IList<Object>>();
+        private static readonly IDictionary<string, IDictionary<Type, IList<Object>>> Resources = new Dictionary<string, IDictionary<Type, IList<Object>>>();
 
-        public static Object GetAsset(Type type)
+        public static Object GetAsset(Type type) => GetAsset(type, DefaultResources);
+
+        public static Object GetAsset(Type type, string key)
         {
-            if (!Resources.ContainsKey(type))
+            if (!Resources.TryGetValue(key, out var resources))
+                return null;
+            
+            return GetAsset(type, resources);
+        }
+
+        private static Object GetAsset(Type type, IDictionary<Type, IList<Object>> resources)
+        {
+            if (!resources.TryGetValue(type, out var list))
                 return null;
 
-            var list = Resources[type];
             if (list.Count <= 0)
                 return null;
 
             return list[0];
         }
 
-        public static Object[] GetAssets(Type type)
-        {
-            if (!Resources.ContainsKey(type))
-                return null;
+        public static Object[] GetAssets(Type type) => GetAssets(type, DefaultResources);
 
-            return Resources[type].ToArray();
+        public static Object[] GetAssets(Type type, string key)
+        {
+            if (!Resources.TryGetValue(key, out var resources))
+                return Array.Empty<Object>();
+            
+            return GetAssets(type, resources);
         }
 
-        public static T GetAsset<T>() where T : Object
+        private static Object[] GetAssets(Type type, IDictionary<Type, IList<Object>> resources)
         {
-            return (T)GetAsset(typeof(T));
+            if (!resources.TryGetValue(type, out var list))
+                return Array.Empty<Object>();
+
+            return list.ToArray();
         }
 
-        public static T[] GetAssets<T>() where T : Object
+        public static T GetAsset<T>() where T : Object => (T)GetAsset(typeof(T));
+        
+        public static T GetAsset<T>(string key) where T : Object => (T)GetAsset(typeof(T), key);
+
+        public static T[] GetAssets<T>() where T : Object => GetAssets(typeof(T)).Cast<T>().ToArray();
+        
+        public static T[] GetAssets<T>(string key) where T : Object => GetAssets(typeof(T), key).Cast<T>().ToArray();
+
+        internal static void RegisterAssets(Object[] objects) => RegisterAssets(objects, DefaultResources);
+
+        internal static void RegisterAssets(Object[] objects, string key)
         {
-            return GetAssets(typeof(T)).Cast<T>().ToArray();
+            if (!Resources.ContainsKey(key))
+            {
+                Resources.Add(key, new Dictionary<Type, IList<Object>>());
+            }
+            
+            RegisterAssets(objects, Resources[key]);
         }
 
-        internal static void RegisterAssets(Object[] objects)
+        private static void RegisterAssets(Object[] objects, IDictionary<Type, IList<Object>> resources)
         {
             foreach (var o in objects)
             {
-                if (!Resources.ContainsKey(o.GetType()))
+                if (!resources.ContainsKey(o.GetType()))
                 {
-                    Resources.Add(o.GetType(), new List<Object>());
+                    resources.Add(o.GetType(), new List<Object>());
                 }
                 
-                Resources[o.GetType()].Add(o);
+                resources[o.GetType()].Add(o);
             }
         }
+        
+        #if UNITY_EDITOR
+
+        internal static void Reset()
+        {
+            Resources.Clear();
+            DefaultResources.Clear();
+        }
+        
+        #endif
     }
 }
