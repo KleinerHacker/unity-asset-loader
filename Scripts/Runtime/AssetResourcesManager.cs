@@ -1,92 +1,105 @@
 ﻿using System;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
+using ClassicResources = UnityEngine.Resources;
 
 namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
 {
     public static class AssetResourcesManager
     {
-        public static AssetResourcesLoaderBuilder<Object> FromResources(Type type, string path) =>
-            new(() => Resources.LoadAll(path, type));
-    }
+        public static AssetResources Resources { get; } = new();
 
-    public abstract class AssetResourcesLoaderBuilder
-    {
-        protected struct Asset<T>
-        {
-            public string Key { get; }
-            public T Object { get; }
+        #region Classic Resources
 
-            public Asset(string key, T o)
-            {
-                Key = key;
-                Object = o;
-            }
-        }
-    }
+        public static AssetResourcesLoader<Object> FromResources(string path) =>
+            new(() => ClassicResources.LoadAll(path));
 
-    public sealed class AssetResourcesLoaderBuilder<T> : AssetResourcesLoaderBuilder where T : Object
-    {
-        //Loading action with a key selector to use for
-        private readonly Func<Func<T, string>, Asset<T>[]> _loadingAction;
-        //Current set key selector
-        private readonly Func<T, string> _keySelector = _ => null;
+        public static AssetResourcesLoader<Object> FromResources(Type type, string path) =>
+            new(() => ClassicResources.LoadAll(path, type));
 
-        internal AssetResourcesLoaderBuilder(Func<T[]> loadingAction)
-        {
-            _loadingAction = (keySelector) => loadingAction().Select(o => new Asset<T>(keySelector(o), o)).ToArray();
-        }
+        public static AssetResourcesLoader<T> FromResources<T>(string path) where T : Object =>
+            new(() => ClassicResources.LoadAll<T>(path));
 
-        private AssetResourcesLoaderBuilder(Func<Func<T, string>, Asset<T>[]> loadingAction, Func<T, string> keySelector = null)
-        {
-            _loadingAction = loadingAction;
-            _keySelector = keySelector ?? (_ => null);
-        }
+        #endregion
 
-        /// <summary>
-        /// Set up a key to use for all loaded assets
-        /// </summary>
-        public AssetResourcesLoaderBuilder<T> WithKey(string key) =>
-            new(_loadingAction, _ => key);
+        #region Asset Bundles
 
-        /// <summary>
-        /// Set up a key selector to define separate keys for each loaded asset
-        /// </summary>
-        public AssetResourcesLoaderBuilder<T> WithKeySelector(Func<T, string> keySelector) =>
-            new(_loadingAction, keySelector);
+        public static AssetResourcesLoader<Object> FromBundle(string path) =>
+            new(() => AssetBundle.LoadFromFile(path).LoadAllAssets());
 
-        /// <summary>
-        /// Set up a converter to convert loaded assets to another type
-        /// </summary>
-        public AssetResourcesLoaderBuilder<TResult> WithConverter<TResult>(Func<T, TResult> converter)
-            where TResult : Object => 
-            //In lambda run original loading action with current key selector and convert the result
-            //with help of new key selector given by the converter (type fit) 
-            new(keySelector => _loadingAction(_keySelector).Select(o => new Asset<TResult>(keySelector(converter(o.Object)) ?? o.Key , converter(o.Object))).ToArray());
+        public static AssetResourcesLoader<Object> FromBundle(Type type, string path) =>
+            new(() => AssetBundle.LoadFromFile(path).LoadAllAssets(type));
 
-        /// <summary>
-        /// Load all assets and register them with the AssetResources
-        /// </summary>
-        /// <param name="visitor">An optional visitor for the key / asset value pair</param>
-        public int Load(Action<string, T> visitor = null)
-        {
-            var assets = _loadingAction(_keySelector);
-            foreach (var asset in assets)
-            {
-                visitor?.Invoke(asset.Key, asset.Object);
-                
-                if (!string.IsNullOrEmpty(asset.Key))
-                {
-                    AssetResources.RegisterAssets(new[] { asset.Object }.ToArray<Object>(), asset.Key);
-                }
-                else
-                {
-                    AssetResources.RegisterAssets(new[] { asset.Object }.ToArray<Object>());
-                }
-            }
-            
-            return assets.Length;
-        }
+        public static AssetResourcesLoader<T> FromBundle<T>(string path) where T : Object =>
+            new(() => AssetBundle.LoadFromFile(path).LoadAllAssets<T>());
+
+        public static string[] GetScenesFromBundle(string path) =>
+            AssetBundle.LoadFromFile(path).GetAllScenePaths();
+
+        #endregion
+
+        #region Addressables
+
+#if UNITY_ADDRESSABLE
+
+        public static AssetResourcesLoader<Object> FromAddressable(string label) =>
+            new(() => Addressables.LoadAssetsAsync<Object>(label).WaitForCompletion().ToArray());
+
+        public static AssetResourcesLoader<T> FromAddressable<T>(string label) where T : Object =>
+            new(() => Addressables.LoadAssetsAsync<T>(label).WaitForCompletion().ToArray());
+
+        public static void LoadSceneFromAddressable(string label, LoadSceneMode loadMode = LoadSceneMode.Single,
+            SceneReleaseMode releaseMode = SceneReleaseMode.ReleaseSceneWhenSceneUnloaded, bool activateOnLoad = true,
+            int priority = 100) =>
+            Addressables.LoadSceneAsync(label, loadMode, releaseMode, activateOnLoad, priority).WaitForCompletion();
+
+        public static AsyncOperationHandle LoadSceneFromAddressableAsync(string label,
+            LoadSceneMode loadMode = LoadSceneMode.Single,
+            SceneReleaseMode releaseMode = SceneReleaseMode.ReleaseSceneWhenSceneUnloaded, bool activateOnLoad = true,
+            int priority = 100) =>
+            Addressables.LoadSceneAsync(label, loadMode, releaseMode, activateOnLoad, priority);
+
+#endif
+
+        #endregion
+
+        #region Asset Database
+
+#if UNITY_EDITOR
+
+        public static AssetResourcesLoader<Object> FromAssetDatabase(string path) =>
+            new(() => AssetDatabase.LoadAllAssetsAtPath(path));
+
+        public static AssetResourcesLoader<Object> FromAssetDatabase(Type type, string path) =>
+            new(() => AssetDatabase.LoadAllAssetsAtPath(path).Where(x => type == x.GetType()).ToArray());
+
+        public static AssetResourcesLoader<T> FromAssetDatabase<T>(string path) where T : Object =>
+            new(() => AssetDatabase.LoadAllAssetsAtPath(path).OfType<T>().ToArray());
+
+#endif
+
+        #endregion
+
+        #region Delegates
+
+        internal static void RegisterAsset(Object asset, string key) =>
+            Resources.RegisterAsset(asset, key);
+
+        internal static void RegisterAsset(Object asset) =>
+            Resources.RegisterAsset(asset);
+
+#if UNITY_EDITOR
+
+        internal static void Reset() => Resources.Reset();
+
+#endif
+
+        #endregion
     }
 }

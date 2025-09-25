@@ -1,8 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime;
-using UnityEditor.Callbacks;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
@@ -12,7 +10,7 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
         [SetUp]
         public void Setup()
         {
-            AssetResources.Reset();
+            AssetResourcesManager.Reset();
         }
         
         [Test]
@@ -22,8 +20,8 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .Load((key, o) => Assert.IsNull(key, "Key is not null for " + o.Identifier));
 
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(3, AssetResources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(3, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
         }
 
         [Test]
@@ -34,10 +32,10 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .Load((key, o) => Assert.AreEqual("test", key, "Key is not 'test' for " + o.Identifier));
 
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test").Length);
-            Assert.AreEqual(3, AssetResources.GetAssets<TestObject>("test").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test").Length);
+            Assert.AreEqual(3, AssetResourcesManager.Resources.GetAssets<TestObject>("test").Length);
         }
 
         [Test]
@@ -62,14 +60,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
         }
         
         [Test]
@@ -95,14 +93,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
         }
 
         [Test]
@@ -117,8 +115,8 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(3, AssetResources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(3, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
         }
         
         [Test]
@@ -134,10 +132,10 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test").Length);
-            Assert.AreEqual(3, AssetResources.GetAssets<InnerObject>("test").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test").Length);
+            Assert.AreEqual(3, AssetResourcesManager.Resources.GetAssets<InnerObject>("test").Length);
         }
         
         [Test]
@@ -165,14 +163,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
         }
         
         [Test]
@@ -201,14 +199,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
         }
         
         [Test]
@@ -224,10 +222,10 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test").Length);
-            Assert.AreEqual(3, AssetResources.GetAssets<InnerObject>("test").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test").Length);
+            Assert.AreEqual(3, AssetResourcesManager.Resources.GetAssets<InnerObject>("test").Length);
         }
         
         [Test]
@@ -255,14 +253,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
         }
         
         [Test]
@@ -299,14 +297,14 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 });
             
             Assert.AreEqual(3, count);
-            Assert.AreEqual(0, AssetResources.GetAssets<InnerObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>().Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test1").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test2").Length);
-            Assert.AreEqual(0, AssetResources.GetAssets<TestObject>("test3").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test1").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test2").Length);
-            Assert.AreEqual(1, AssetResources.GetAssets<InnerObject>("test3").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<InnerObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>().Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test1").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test2").Length);
+            Assert.AreEqual(0, AssetResourcesManager.Resources.GetAssets<TestObject>("test3").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test1").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test2").Length);
+            Assert.AreEqual(1, AssetResourcesManager.Resources.GetAssets<InnerObject>("test3").Length);
         }
     }
 
@@ -320,7 +318,7 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
         public static readonly TestObject TestObject2 = new("TestObject2", InnerObject2);
         public static readonly TestObject TestObject3 = new("TestObject3", InnerObject3);
 
-        public static AssetResourcesLoaderBuilder<TestObject> FromMemory() =>
+        public static AssetResourcesLoader<TestObject> FromMemory() =>
             new(() => new[] { TestObject1, TestObject2, TestObject3 });
     }
 
