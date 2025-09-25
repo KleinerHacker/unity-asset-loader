@@ -1,296 +1,88 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
 
 namespace UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime
 {
-    public static class AssetResourcesLoader
+    public abstract class AssetResourcesLoader
     {
-        public static void LoadFromResources(Type type, string path)
+        protected struct Asset<T>
         {
-            var objects = Resources.LoadAll(path, type);
-            RegisterObjects(objects);
-        }
+            public string Key { get; }
+            public T Object { get; }
 
-        public static void LoadFromResources<T>(string path) where T : Object => LoadFromResources(typeof(T), path);
-
-        public static void LoadFromResourcesAsync(Type type, string path, Action onFinished) => Task.Run(() =>
-        {
-            LoadFromResources(type, path);
-            onFinished?.Invoke();
-        });
-
-        public static void LoadFromResourcesAsync<T>(string path, Action onFinished = null) where T : Object =>
-            LoadFromResourcesAsync(typeof(T), path, onFinished);
-
-        public static void LoadFromResources(string path)
-        {
-            var objects = Resources.LoadAll(path);
-            RegisterObjects(objects);
-        }
-
-        public static void LoadFromResourcesAsync(string path, Action onFinished = null) => Task.Run(() =>
-        {
-            LoadFromResources(path);
-            onFinished?.Invoke();
-        });
-
-        public static void LoadFromBundle(Type type, string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload)
-        {
-            var bundle = AssetBundle.LoadFromFile(path);
-            try
+            public Asset(string key, T o)
             {
-                var assets = bundle.LoadAllAssets(type);
-                RegisterObjects(assets);
+                Key = key;
+                Object = o;
             }
-            finally
-            {
-                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                {
-                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
-                }
-            }
-        }
-
-        public static void LoadFromBundle<T>(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload) where T : Object =>
-            LoadFromBundle(typeof(T), path, unload);
-
-        public static void LoadFromBundleAsync(Type type, string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
-        {
-            var bundleRequest = AssetBundle.LoadFromFileAsync(path);
-            bundleRequest.completed += _ =>
-            {
-                var assetRequest = bundleRequest.assetBundle.LoadAllAssetsAsync(type);
-                assetRequest.completed += _ =>
-                {
-                    try
-                    {
-                        RegisterObjects(assetRequest.allAssets);
-                        onFinished?.Invoke();
-                    }
-                    finally
-                    {
-                        if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                        {
-                            bundleRequest.assetBundle.UnloadAsync(unload ==
-                                                                  AssetResourcesLoaderBundleUnload.UnloadComplete);
-                        }
-                    }
-                };
-            };
-        }
-
-        public static void LoadFromBundleAsync<T>(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
-            where T : Object => LoadFromBundleAsync(typeof(T), path, unload, onFinished);
-
-        public static void LoadFromBundle(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
-        {
-            var bundle = AssetBundle.LoadFromFile(path);
-            try
-            {
-                var assets = bundle.LoadAllAssets();
-                RegisterObjects(assets);
-                onFinished?.Invoke();
-            }
-            finally
-            {
-                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                {
-                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
-                }
-            }
-        }
-
-        public static void LoadFromBundleAsync(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.Unload, Action onFinished = null)
-        {
-            var bundleRequest = AssetBundle.LoadFromFileAsync(path);
-            bundleRequest.completed += _ =>
-            {
-                var assetRequest = bundleRequest.assetBundle.LoadAllAssetsAsync();
-                assetRequest.completed += _ =>
-                {
-                    try
-                    {
-                        RegisterObjects(assetRequest.allAssets);
-                        onFinished?.Invoke();
-                    }
-                    finally
-                    {
-                        if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                        {
-                            bundleRequest.assetBundle.UnloadAsync(unload ==
-                                                                  AssetResourcesLoaderBundleUnload.UnloadComplete);
-                        }
-                    }
-                };
-            };
-        }
-
-        public static string[] LoadScenesFromBundle(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload)
-        {
-            var bundle = AssetBundle.LoadFromFile(path);
-            try
-            {
-                return bundle.GetAllScenePaths();
-            }
-            finally
-            {
-                if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                {
-                    bundle.Unload(unload == AssetResourcesLoaderBundleUnload.UnloadComplete);
-                }
-            }
-        }
-
-        public static void LoadScenesFromBundleAsync(string path,
-            AssetResourcesLoaderBundleUnload unload = AssetResourcesLoaderBundleUnload.DoNotUnload,
-            Action<string[]> onFinished = null)
-        {
-            var bundleRequest = AssetBundle.LoadFromFileAsync(path);
-            bundleRequest.completed += _ =>
-            {
-                try
-                {
-                    var allScenePaths = bundleRequest.assetBundle.GetAllScenePaths();
-                    onFinished?.Invoke(allScenePaths);
-                }
-                finally
-                {
-                    if (unload != AssetResourcesLoaderBundleUnload.DoNotUnload)
-                    {
-                        bundleRequest.assetBundle.UnloadAsync(unload ==
-                                                              AssetResourcesLoaderBundleUnload.UnloadComplete);
-                    }
-                }
-            };
-        }
-
-#if UNITY_EDITOR
-        public static void LoadFromAssetDatabase(Type type, string path)
-        {
-            var assets = AssetDatabase.LoadAllAssetsAtPath(path)
-                .Where(x => type == x.GetType())
-                .ToArray();
-            RegisterObjects(assets);
-        }
-
-        public static void LoadFromAssetDatabase<T>(string path) where T : Object =>
-            LoadFromAssetDatabase(typeof(T), path);
-
-        public static void LoadFromAssetDatabase(string path)
-        {
-            var assets = AssetDatabase.LoadAllAssetsAtPath(path)
-                .ToArray();
-            RegisterObjects(assets);
-        }
-
-        public static void LoadFromBundleDeclaration(Type type, string bundleName)
-        {
-            var assets = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName)
-                .SelectMany(AssetDatabase.LoadAllAssetsAtPath)
-                .Where(x => type == x.GetType())
-                .ToArray();
-            RegisterObjects(assets);
-        }
-
-        public static void LoadFromBundleDeclaration<T>(string bundleName) where T : Object =>
-            LoadFromBundleDeclaration(typeof(T), bundleName);
-
-        public static void LoadFromBundleDeclaration(string bundleName)
-        {
-            var assets = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName)
-                .SelectMany(AssetDatabase.LoadAllAssetsAtPath)
-                .ToArray();
-            RegisterObjects(assets);
-        }
-#endif
-
-#if UNITY_ADDRESSABLE
-
-        public static void LoadAssetFromAddressable<T>(string key) where T : Object
-        {
-            var asset = Addressables.LoadAssetAsync<T>(key).WaitForCompletion();
-            RegisterObjects(new Object[] {asset});
-        }
-
-        public static IEnumerator LoadAssetFromAddressableAsync<T>(string key) where T : Object
-        {
-            var handle = Addressables.LoadAssetAsync<T>(key);
-            handle.Completed += HandleOnCompleted;
-
-            return handle;
-            
-            void HandleOnCompleted(AsyncOperationHandle<T> obj)
-            {
-                try
-                {
-                    if (obj.Status != AsyncOperationStatus.Succeeded)
-                        throw new InvalidOperationException("Failed to load asset from addressable asset: " + key);
-                
-                    RegisterObjects(new Object[]{obj.Result});
-                }
-                finally
-                {
-                    handle.Completed -= HandleOnCompleted;
-                }
-            }
-        }
-        
-        public static void LoadAssetsFromAddressable<T>(string key) where T : Object
-        {
-            var assets = Addressables.LoadAssetsAsync<T>(key).WaitForCompletion();
-            RegisterObjects(assets.ToArray<Object>());
-        }
-        
-        public static IEnumerator LoadAssetsFromAddressableAsync<T>(string key) where T : Object
-        {
-            var handle = Addressables.LoadAssetsAsync<T>(key);
-            handle.Completed += HandleOnCompleted;
-
-            return handle;
-            
-            void HandleOnCompleted(AsyncOperationHandle<IList<T>> obj)
-            {
-                try
-                {
-                    if (obj.Status != AsyncOperationStatus.Succeeded)
-                        throw new InvalidOperationException("Failed to load asset from addressable asset: " + key);
-                
-                    RegisterObjects(obj.Result.ToArray<Object>());
-                }
-                finally
-                {
-                    handle.Completed -= HandleOnCompleted;
-                }
-            }
-        }
-
-#endif
-
-        private static void RegisterObjects(Object[] objects)
-        {
-            AssetResources.RegisterAssets(objects);
         }
     }
 
-    public enum AssetResourcesLoaderBundleUnload
+    public sealed class AssetResourcesLoader<T> : AssetResourcesLoader where T : Object
     {
-        DoNotUnload,
-        Unload,
-        UnloadComplete
+        //Loading action with a key selector to use for
+        private readonly Func<Func<T, string>, Asset<T>[]> _loadingAction;
+
+        //Current set key selector
+        private readonly Func<T, string> _keySelector = _ => null;
+
+        internal AssetResourcesLoader(Func<T[]> loadingAction)
+        {
+            _loadingAction = (keySelector) => loadingAction().Select(o => new Asset<T>(keySelector(o), o)).ToArray();
+        }
+
+        private AssetResourcesLoader(Func<Func<T, string>, Asset<T>[]> loadingAction,
+            Func<T, string> keySelector = null)
+        {
+            _loadingAction = loadingAction;
+            _keySelector = keySelector ?? (_ => null);
+        }
+
+        /// <summary>
+        /// Set up a key to use for all loaded assets
+        /// </summary>
+        public AssetResourcesLoader<T> WithKey(string key) =>
+            new(_loadingAction, _ => key);
+
+        /// <summary>
+        /// Set up a key selector to define separate keys for each loaded asset
+        /// </summary>
+        public AssetResourcesLoader<T> WithKeySelector(Func<T, string> keySelector) =>
+            new(_loadingAction, keySelector);
+
+        /// <summary>
+        /// Set up a converter to convert loaded assets to another type
+        /// </summary>
+        public AssetResourcesLoader<TResult> WithConverter<TResult>(Func<T, TResult> converter)
+            where TResult : Object =>
+            //In lambda run original loading action with current key selector and convert the result
+            //with help of new key selector given by the converter (type fit) 
+            new(keySelector => _loadingAction(_keySelector).Select(o =>
+                new Asset<TResult>(keySelector(converter(o.Object)) ?? o.Key, converter(o.Object))).ToArray());
+
+        /// <summary>
+        /// Load all assets and register them with the AssetResources
+        /// </summary>
+        /// <param name="visitor">An optional visitor for the key / asset value pair</param>
+        public int Load(Action<string, T> visitor = null)
+        {
+            var assets = _loadingAction(_keySelector);
+            foreach (var asset in assets)
+            {
+                visitor?.Invoke(asset.Key, asset.Object);
+
+                if (!string.IsNullOrEmpty(asset.Key))
+                {
+                    AssetResourcesManager.RegisterAsset(asset.Object, asset.Key);
+                }
+                else
+                {
+                    AssetResourcesManager.RegisterAsset(asset.Object);
+                }
+            }
+
+            return assets.Length;
+        }
     }
 }
