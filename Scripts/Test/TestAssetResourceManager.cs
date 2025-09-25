@@ -1,7 +1,9 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using UnityAssetLoader.Runtime.Projects.unity_asset_loader.Scripts.Runtime;
 using UnityEditor.Callbacks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
 {
@@ -44,18 +46,18 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
             var count = TestLoader.FromMemory()
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.TestObject1) return "test1";
-                    if (o == TestLoader.TestObject2) return "test2";
-                    if (o == TestLoader.TestObject3) return "test3";
+                    if (Equals(o, TestLoader.TestObject1)) return "test1";
+                    if (Equals(o, TestLoader.TestObject2)) return "test2";
+                    if (Equals(o, TestLoader.TestObject3)) return "test3";
 
                     Assert.Fail();
                     return null;
                 })
                 .Load((key, o) =>
                 {
-                    if (o == TestLoader.TestObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.TestObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.TestObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.TestObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.TestObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.TestObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -77,18 +79,18 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .WithKey("test")
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.TestObject1) return "test1";
-                    if (o == TestLoader.TestObject2) return "test2";
-                    if (o == TestLoader.TestObject3) return "test3";
+                    if (Equals(o, TestLoader.TestObject1)) return "test1";
+                    if (Equals(o, TestLoader.TestObject2)) return "test2";
+                    if (Equals(o, TestLoader.TestObject3)) return "test3";
 
                     Assert.Fail();
                     return null;
                 })
                 .Load((key, o) =>
                 {
-                    if (o == TestLoader.TestObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.TestObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.TestObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.TestObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.TestObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.TestObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -145,9 +147,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .WithConverter(x => x.InnerObject)
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.InnerObject1) return "test1";
-                    if (o == TestLoader.InnerObject2) return "test2";
-                    if (o == TestLoader.InnerObject3) return "test3";
+                    if (Equals(o, TestLoader.InnerObject1)) return "test1";
+                    if (Equals(o, TestLoader.InnerObject2)) return "test2";
+                    if (Equals(o, TestLoader.InnerObject3)) return "test3";
                     
                     Assert.Fail();
                     return null;
@@ -156,9 +158,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 {
                     Assert.IsTrue(o.Identifier.StartsWith("InnerObject"), "Identifier is not starting with InnerObject for " + o.Identifier);
                     
-                    if (o == TestLoader.InnerObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.InnerObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -181,9 +183,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .WithKey("test")
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.InnerObject1) return "test1";
-                    if (o == TestLoader.InnerObject2) return "test2";
-                    if (o == TestLoader.InnerObject3) return "test3";
+                    if (Equals(o, TestLoader.InnerObject1)) return "test1";
+                    if (Equals(o, TestLoader.InnerObject2)) return "test2";
+                    if (Equals(o, TestLoader.InnerObject3)) return "test3";
                     
                     Assert.Fail();
                     return null;
@@ -192,9 +194,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 {
                     Assert.IsTrue(o.Identifier.StartsWith("InnerObject"), "Identifier is not starting with InnerObject for " + o.Identifier);
                     
-                    if (o == TestLoader.InnerObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.InnerObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -234,9 +236,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
             var count = TestLoader.FromMemory()
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.TestObject1) return "test1";
-                    if (o == TestLoader.TestObject2) return "test2";
-                    if (o == TestLoader.TestObject3) return "test3";
+                    if (Equals(o, TestLoader.TestObject1)) return "test1";
+                    if (Equals(o, TestLoader.TestObject2)) return "test2";
+                    if (Equals(o, TestLoader.TestObject3)) return "test3";
                     
                     Assert.Fail();
                     return null;
@@ -246,9 +248,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 {
                     Assert.IsTrue(o.Identifier.StartsWith("InnerObject"), "Identifier is not starting with InnerObject for " + o.Identifier);
                     
-                    if (o == TestLoader.InnerObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.InnerObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -269,9 +271,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
             var count = TestLoader.FromMemory()
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.TestObject1) return "test1x";
-                    if (o == TestLoader.TestObject2) return "test2x";
-                    if (o == TestLoader.TestObject3) return "test3x";
+                    if (Equals(o, TestLoader.TestObject1)) return "test1x";
+                    if (Equals(o, TestLoader.TestObject2)) return "test2x";
+                    if (Equals(o, TestLoader.TestObject3)) return "test3x";
                     
                     Assert.Fail();
                     return null;
@@ -279,9 +281,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 .WithConverter(x => x.InnerObject)
                 .WithKeySelector(o =>
                 {
-                    if (o == TestLoader.InnerObject1) return "test1";
-                    if (o == TestLoader.InnerObject2) return "test2";
-                    if (o == TestLoader.InnerObject3) return "test3";
+                    if (Equals(o, TestLoader.InnerObject1)) return "test1";
+                    if (Equals(o, TestLoader.InnerObject2)) return "test2";
+                    if (Equals(o, TestLoader.InnerObject3)) return "test3";
                     
                     Assert.Fail();
                     return null;
@@ -290,9 +292,9 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
                 {
                     Assert.IsTrue(o.Identifier.StartsWith("InnerObject"), "Identifier is not starting with InnerObject for " + o.Identifier);
                     
-                    if (o == TestLoader.InnerObject1) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject2) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
-                    else if (o == TestLoader.InnerObject3) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
+                    if (Equals(o, TestLoader.InnerObject1)) Assert.AreEqual("test1", key, "Key is not 'test1' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject2)) Assert.AreEqual("test2", key, "Key is not 'test2' for " + o.Identifier);
+                    else if (Equals(o, TestLoader.InnerObject3)) Assert.AreEqual("test3", key, "Key is not 'test3' for " + o.Identifier);
                     else Assert.Fail();
                 });
             
@@ -332,6 +334,21 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
             Identifier = identifier;
             InnerObject = innerObject;
         }
+
+        private bool Equals(TestObject other)
+        {
+            return base.Equals(other) && Identifier == other.Identifier;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is TestObject other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Identifier);
+        }
     }
 
     public sealed class InnerObject : Object
@@ -341,6 +358,21 @@ namespace UnityAssetLoader.Test.Projects.unity_asset_loader.Scripts.Test
         public InnerObject(string identifier)
         {
             Identifier = identifier;
+        }
+
+        private bool Equals(InnerObject other)
+        {
+            return base.Equals(other) && Identifier == other.Identifier;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is InnerObject other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Identifier);
         }
     }
 }
